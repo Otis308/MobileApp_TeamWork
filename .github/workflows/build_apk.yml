@@ -32,7 +32,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Release APK
-        run: flutter build apk --release --dart-define=API_BASE_URL=https://mobileappteamwork-production.up.railway.app
+        run: flutter build apk --release --android-skip-build-dependency-validation --dart-define=API_BASE_URL=https://mobileappteamwork-production.up.railway.app
 
       - name: Upload APK to GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
