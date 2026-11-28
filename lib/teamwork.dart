@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/providers/core_providers.dart';
@@ -90,6 +91,13 @@ class _TeamWorkState extends ConsumerState<TeamWork> {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       scaffoldMessengerKey: _messengerKey,
+      locale: const Locale('vi'),
+      supportedLocales: const [Locale('vi')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       routerConfig: ref.watch(routerProvider),
       builder: (context, child) => Stack(
         children: [

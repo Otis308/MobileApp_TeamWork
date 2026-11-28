@@ -247,7 +247,8 @@ class _TimelineScreenState extends ConsumerState<TimelineScreen> {
                                       ? 'HOÀN THÀNH'
                                       : overdue
                                           ? 'QUÁ $daysLate NGÀY'
-                                          : task.status.toUpperCase(),
+                                          : vietnameseStatusLabel(task.status)
+                                              .toUpperCase(),
                                   title: task.title,
                                   detail: assignee.isEmpty
                                       ? 'Chưa giao cho ai'

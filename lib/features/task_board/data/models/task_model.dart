@@ -9,6 +9,15 @@ Object? _readAssignee(Map json, String key) {
   return v is Map ? Map<String, dynamic>.from(v) : null;
 }
 
+// createdBy là object khi server populate ({_id, fullName}) — chỉ cần lấy id
+// để so sánh với người dùng hiện tại (quyền sửa/xóa).
+Object? _readCreatedById(Map json, String key) {
+  final v = json[key];
+  if (v is Map) return v['_id']?.toString();
+  if (v is String) return v;
+  return null;
+}
+
 @freezed
 abstract class TaskAssignee with _$TaskAssignee {
   const factory TaskAssignee({
@@ -33,10 +42,12 @@ abstract class TaskModel with _$TaskModel {
     @Default('todo') String status,
     @Default('medium') String priority,
     @JsonKey(name: 'assigneeId', readValue: _readAssignee) TaskAssignee? assignee,
+    @JsonKey(name: 'createdBy', readValue: _readCreatedById) String? createdById,
     DateTime? dueDate,
     @Default(false) bool dueHasTime,
     @Default(0) int order,
     @Default(false) bool isOverdue,
+    DateTime? updatedAt,
   }) = _TaskModel;
 
   factory TaskModel.fromJson(Map<String, dynamic> json) =>
@@ -60,11 +71,11 @@ abstract class TaskModel with _$TaskModel {
     return '${_two(l.hour)}:${_two(l.minute)}';
   }
 
-  // 'yyyy-MM-dd' hoặc 'yyyy-MM-dd HH:mm' để hiển thị.
+  // 'dd/MM/yyyy' hoặc 'dd/MM/yyyy HH:mm' để hiển thị.
   String? get dueDateLabel {
     final day = dueDayKey;
     if (day == null) return null;
-    final date = '${day.year.toString().padLeft(4, '0')}-${_two(day.month)}-${_two(day.day)}';
+    final date = '${_two(day.day)}/${_two(day.month)}/${day.year}';
     final time = dueTimeLabel;
     return time == null ? date : '$date $time';
   }

@@ -2,6 +2,8 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from '../auth/schemas/user.schema';
+import { ProjectMember } from '../projects/schemas/project-member.schema';
+import { AppGateway } from '../gateway/app.gateway';
 import { isValidBirthDate } from './birth-date.util';
 import { UpdateProfileDto, UpdatePermissionsDto } from './dto/update-profile.dto';
 
@@ -25,7 +27,24 @@ function toProfile(user: User) {
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
+    @InjectModel(ProjectMember.name) private projectMemberModel: Model<ProjectMember>,
+    private readonly gateway: AppGateway,
   ) {}
+
+  // Đẩy hồ sơ mới nhất tới mọi dự án mà user đang là thành viên, để danh sách
+  // nhóm của người khác (vd số điện thoại) cập nhật ngay, không cần tải lại.
+  private async _broadcastProfileUpdate(userId: string, profile: ReturnType<typeof toProfile>) {
+    const memberships = await this.projectMemberModel.find({ userId }).select('projectId');
+    for (const m of memberships) {
+      this.gateway.emitToProject(m.projectId.toString(), 'member_profile_updated', {
+        userId,
+        fullName:  profile.fullName,
+        email:     profile.email,
+        phone:     profile.phone,
+        avatarUrl: profile.avatarUrl,
+      });
+    }
+  }
 
   async getProfile(userId: string) {
     const user = await this.userModel.findById(userId).select(PROFILE_FIELDS);
@@ -75,7 +94,9 @@ export class UsersService {
         : await this.userModel.findById(userId).select(PROFILE_FIELDS);
 
       if (!updated) throw new NotFoundException('Không tìm thấy người dùng');
-      return { ...toProfile(updated), message: 'Cập nhật thành công' };
+      const profile = toProfile(updated);
+      await this._broadcastProfileUpdate(userId, profile);
+      return { ...profile, message: 'Cập nhật thành công' };
     } catch (err: any) {
       if (err?.code === 11000) throw new ConflictException('Username đã được sử dụng');
       throw err;

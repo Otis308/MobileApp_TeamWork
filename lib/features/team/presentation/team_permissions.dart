@@ -12,9 +12,8 @@ class TeamPermissions {
   bool get canInvite => isAdmin || isManager;
   bool get canChangeRoles => isAdmin;
 
-  // Quản lý chỉ được xóa Thành viên; Quản trị xóa được mọi người.
-  bool canRemove(ProjectMemberModel target) =>
-      isAdmin || (isManager && target.role == 'Member');
+  // Mô hình mở (giống Trello): chỉ Quản trị viên mới được xóa thành viên khác.
+  bool canRemove(ProjectMemberModel target) => isAdmin;
 
   bool canManage(ProjectMemberModel target) =>
       canChangeRoles || canRemove(target);

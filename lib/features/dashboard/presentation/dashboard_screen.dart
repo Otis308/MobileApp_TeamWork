@@ -472,7 +472,9 @@ class _UrgentTasksState extends ConsumerState<_UrgentTasks> {
               title: task.title,
               project: widget.projectId,
               time: task.dueDateLabel ?? '',
-              tag: task.isOverdue ? 'QUÁ HẠN' : task.status,
+              tag: task.isOverdue
+                  ? 'QUÁ HẠN'
+                  : vietnameseStatusLabel(task.status).toUpperCase(),
               completed: task.status == 'done',
               onToggle: () => widget.onNavigate(AppScreen.kanbanBoard),
             ),

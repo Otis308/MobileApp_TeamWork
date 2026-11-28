@@ -57,7 +57,7 @@ void showCreateProjectSheet(
             ),
             const SizedBox(height: 4),
             const Text(
-              'Bạn sẽ là Quản trị của dự án này',
+              'Bạn sẽ là Quản trị viên của dự án này',
               style: TextStyle(color: AppColors.muted, fontSize: 11),
             ),
             const SizedBox(height: 20),

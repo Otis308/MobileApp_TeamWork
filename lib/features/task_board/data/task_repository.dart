@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import '../../../core/network/api_client.dart';
+import 'models/task_comment_model.dart';
 import 'models/task_model.dart';
 
 class TaskRepository {
@@ -143,6 +144,39 @@ class TaskRepository {
       await _dio.delete('/tasks/$taskId');
     } on DioException catch (e) {
       throw Exception(e.response?.data['message'] ?? 'Lỗi xóa');
+    }
+  }
+
+  // GET /tasks/:id/comments
+  Future<List<TaskCommentModel>> getComments(String taskId) async {
+    try {
+      final res = await _dio.get('/tasks/$taskId/comments');
+      return (res.data as List)
+          .map((e) => TaskCommentModel.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Lỗi tải bình luận');
+    }
+  }
+
+  // POST /tasks/:id/comments
+  Future<TaskCommentModel> addComment(String taskId, String content) async {
+    try {
+      final res = await _dio.post('/tasks/$taskId/comments', data: {
+        'content': content,
+      });
+      return TaskCommentModel.fromJson(Map<String, dynamic>.from(res.data));
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Lỗi gửi bình luận');
+    }
+  }
+
+  // DELETE /tasks/:id/comments/:commentId
+  Future<void> deleteComment(String taskId, String commentId) async {
+    try {
+      await _dio.delete('/tasks/$taskId/comments/$commentId');
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Lỗi xóa bình luận');
     }
   }
 }

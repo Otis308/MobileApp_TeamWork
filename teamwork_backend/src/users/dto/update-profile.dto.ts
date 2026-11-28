@@ -11,7 +11,7 @@ const Present = (...extra: PropertyDecorator[]) =>
 export class UpdateProfileDto {
   @IsOptional()
   @IsString()
-  @MaxLength(100)
+  @MaxLength(100, { message: 'Họ tên tối đa 100 ký tự' })
   fullName?: string;
 
   @Present(
@@ -41,20 +41,20 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(500)
+  @MaxLength(500, { message: 'avatarUrl tối đa 500 ký tự' })
   avatarUrl?: string;
 }
 
 export class UpdatePermissionsDto {
   @IsOptional()
-  @IsBoolean()
+  @IsBoolean({ message: 'camera phải là true/false' })
   camera?: boolean;
 
   @IsOptional()
-  @IsBoolean()
+  @IsBoolean({ message: 'contacts phải là true/false' })
   contacts?: boolean;
 
   @IsOptional()
-  @IsBoolean()
+  @IsBoolean({ message: 'messages phải là true/false' })
   messages?: boolean;
 }

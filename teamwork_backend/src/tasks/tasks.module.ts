@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TasksController } from './tasks.controller';
 import { TasksService } from './tasks.service';
 import { Task, TaskSchema } from './schemas/task.schema';
+import { TaskComment, TaskCommentSchema } from './schemas/task-comment.schema';
 import { Notification, NotificationSchema } from '../notifications/schemas/notification.schema';
 import { Project, ProjectSchema } from '../projects/schemas/project.schema';
 import { ProjectMember, ProjectMemberSchema } from '../projects/schemas/project-member.schema';
@@ -14,6 +15,7 @@ import { ProjectAccessModule } from '../common/project-access/project-access.mod
   imports: [
     MongooseModule.forFeature([
       { name: Task.name, schema: TaskSchema },
+      { name: TaskComment.name, schema: TaskCommentSchema },
       { name: Notification.name, schema: NotificationSchema },
       { name: Project.name, schema: ProjectSchema },
       { name: ProjectMember.name, schema: ProjectMemberSchema },

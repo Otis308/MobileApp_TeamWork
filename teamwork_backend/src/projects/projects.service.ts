@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -19,6 +20,8 @@ import { ProjectAccessService } from '../common/project-access/project-access.se
 
 @Injectable()
 export class ProjectsService {
+  private readonly logger = new Logger(ProjectsService.name);
+
   constructor(
     @InjectModel(Project.name)
     private projectModel: Model<Project>,
@@ -51,7 +54,7 @@ export class ProjectsService {
       to,
       subject,
       html,
-    }).catch((err) => console.log('Lỗi gửi email:', err));
+    }).catch((err) => this.logger.warn('Lỗi gửi email', err));
   }
 
   async createProject(dto: CreateProjectDto, ownerId: string) {
@@ -305,15 +308,9 @@ export class ProjectsService {
     if (!requesterRole || !target) {
       throw new NotFoundException('Không tìm thấy thành viên');
     }
-    const requester = { role: requesterRole };
-    if (requester.role === 'Manager') {
-      if (target.role === 'Admin' || target.role === 'Manager') {
-        throw new ForbiddenException(
-          'Quản lý không được xóa Quản trị hoặc Quản lý khác',
-        );
-      }
-    } else if (requester.role !== 'Admin') {
-      throw new ForbiddenException('Bạn không có quyền thực hiện hành động này');
+    // Mô hình mở (giống Trello): chỉ Quản trị viên mới được xóa thành viên khác.
+    if (requesterRole !== 'Admin') {
+      throw new ForbiddenException('Chỉ Quản trị viên mới được xóa thành viên khỏi dự án');
     }
     await this.projectMemberModel.deleteOne({
       projectId, userId: targetUserId,

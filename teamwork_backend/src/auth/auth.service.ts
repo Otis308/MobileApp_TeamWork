@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -10,6 +10,7 @@ import { Otp } from './schemas/otp.schema';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   private transporter;
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
@@ -86,7 +87,7 @@ export class AuthService {
       to: email,
       subject: 'Mã xác nhận khôi phục mật khẩu',
       html: `<b>Mã OTP của bạn là: ${otpCode}</b><br>Mã này sẽ hết hạn sau 60 giây.`,
-    }).catch(err => console.log('Lỗi gửi email:', err)); // Bỏ qua lỗi email để test API nếu chưa có mật khẩu thật
+    }).catch(err => this.logger.warn('Lỗi gửi email', err)); // Bỏ qua lỗi email để test API nếu chưa có mật khẩu thật
 
     // Only expose the OTP in the response for local development.
     const isDev = (process.env.NODE_ENV ?? 'development') !== 'production';
@@ -99,15 +100,23 @@ export class AuthService {
   async resetPassword(body: any) {
     const { email, otp, newPassword } = body;
 
-    // 1. Xác thực OTP
-    const validOtp = await this.otpModel.findOne({ email, otpCode: otp });
-    if (!validOtp) throw new BadRequestException('Mã OTP không hợp lệ');
-    if (new Date() > validOtp.expiresAt) throw new BadRequestException('Mã OTP đã hết hạn (quá 60 giây)');
+    // 1. Xác thực OTP — lấy mã mới nhất của email này để có thể đếm số lần nhập sai.
+    const record = await this.otpModel.findOne({ email }).sort({ createdAt: -1 });
+    if (!record) throw new BadRequestException('Mã OTP không hợp lệ');
+    if (new Date() > record.expiresAt) throw new BadRequestException('Mã OTP đã hết hạn (quá 60 giây)');
+    if (record.failedAttempts >= 5) {
+      throw new BadRequestException('Bạn đã nhập sai mã OTP quá 5 lần, vui lòng yêu cầu gửi mã mới');
+    }
+    if (record.otpCode !== otp) {
+      record.failedAttempts += 1;
+      await record.save();
+      throw new BadRequestException('Mã OTP không hợp lệ');
+    }
 
     // 2. Hash mật khẩu mới và cập nhật
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(newPassword, salt);
-    
+
     await this.userModel.updateOne({ email }, { passwordHash });
 
     // 3. Xóa các OTP cũ của user này để dọn dẹp Database

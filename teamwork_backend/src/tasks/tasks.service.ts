@@ -2,15 +2,18 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Task } from './schemas/task.schema';
+import { TaskComment } from './schemas/task-comment.schema';
 import { Notification } from '../notifications/schemas/notification.schema';
 import { Project } from '../projects/schemas/project.schema';
 import { ProjectMember } from '../projects/schemas/project-member.schema';
 import { CreateTaskDto, UpdateTaskDto, MoveTaskDto } from './dto/task.dto';
+import { CreateCommentDto } from './dto/create-comment.dto';
 import { GetTasksQueryDto } from './dto/get-tasks-query.dto';
 import { placeInColumn } from './task-order.util';
 import { isOverdue, overdueCutoff } from './task-overdue.util';
@@ -22,9 +25,13 @@ import { ProjectAccessService } from '../common/project-access/project-access.se
 
 @Injectable()
 export class TasksService {
+  private readonly logger = new Logger(TasksService.name);
+
   constructor(
     @InjectModel(Task.name)
     private taskModel: Model<Task>,
+    @InjectModel(TaskComment.name)
+    private taskCommentModel: Model<TaskComment>,
     @InjectModel(Notification.name)
     private notificationModel: Model<Notification>,
     @InjectModel(Project.name)
@@ -54,7 +61,7 @@ export class TasksService {
       to,
       subject,
       html,
-    }).catch((err) => console.log('Lỗi gửi email:', err));
+    }).catch((err) => this.logger.warn('Lỗi gửi email', err));
   }
 
   private _objectIdOrFail(value: string, field: string): Types.ObjectId {
@@ -62,6 +69,18 @@ export class TasksService {
       throw new BadRequestException(`${field} không hợp lệ`);
     }
     return new Types.ObjectId(value);
+  }
+
+  // Mô hình mở (giống Trello): mọi member đều sửa được nội dung task (xem updateTask).
+  // Riêng XÓA thì chỉ Quản trị viên hoặc chính người tạo task mới được phép.
+  private async _assertCanDeleteTask(task: Task, currentUserId: string) {
+    const role = await this.access.getEffectiveRole(task.projectId.toString(), currentUserId);
+    const isCreator = task.createdBy.toString() === currentUserId;
+    if (!isCreator && role !== 'Admin') {
+      throw new ForbiddenException(
+        'Chỉ Quản trị viên hoặc người tạo công việc này mới được xóa',
+      );
+    }
   }
 
   private async _assertAssigneeInProject(
@@ -212,6 +231,7 @@ export class TasksService {
     const task = await this.taskModel.findById(parsedTaskId);
     if (!task) throw new NotFoundException('Không tìm thấy task');
 
+    // Mô hình mở: mọi member của dự án đều được sửa task (không chỉ creator/assignee).
     await this.access.assertIsMember(task.projectId.toString(), currentUserId);
 
     const oldAssigneeId = task.assigneeId?.toString();
@@ -349,6 +369,7 @@ export class TasksService {
 
     if (currentUserId !== undefined) {
       await this.access.assertIsMember(task.projectId.toString(), currentUserId);
+      await this._assertCanDeleteTask(task, currentUserId);
     }
 
     await task.deleteOne();
@@ -410,5 +431,120 @@ export class TasksService {
         projectName: project?.name ?? '',
       });
     }
+  }
+
+  // ── Bình luận trên task ──
+
+  private _formatComment(c: any) {
+    const obj = c.toObject ? c.toObject() : c;
+    return {
+      _id:       obj._id,
+      content:   obj.content,
+      createdAt: obj.createdAt,
+      userId:    obj.userId,
+    };
+  }
+
+  async getComments(taskId: string, currentUserId?: string) {
+    const parsedTaskId = this._objectIdOrFail(taskId, 'taskId');
+    const task = await this.taskModel.findById(parsedTaskId);
+    if (!task) throw new NotFoundException('Không tìm thấy task');
+
+    if (currentUserId !== undefined) {
+      await this.access.assertIsMember(task.projectId.toString(), currentUserId);
+    }
+
+    const comments = await this.taskCommentModel
+      .find({ taskId: parsedTaskId })
+      .sort({ createdAt: 1 })
+      .populate('userId', 'fullName avatarUrl');
+
+    return comments.map((c) => this._formatComment(c));
+  }
+
+  async addComment(taskId: string, dto: CreateCommentDto, currentUserId: string) {
+    const parsedTaskId = this._objectIdOrFail(taskId, 'taskId');
+    const task = await this.taskModel.findById(parsedTaskId);
+    if (!task) throw new NotFoundException('Không tìm thấy task');
+
+    await this.access.assertIsMember(task.projectId.toString(), currentUserId);
+
+    const created = await this.taskCommentModel.create({
+      taskId:  parsedTaskId,
+      userId:  this._objectIdOrFail(currentUserId, 'userId'),
+      content: dto.content.trim(),
+    });
+    const populated = await created.populate('userId', 'fullName avatarUrl');
+    const comment = this._formatComment(populated);
+    const projectId = task.projectId.toString();
+
+    this.gateway.emitToProject(projectId, 'task_comment_added', {
+      taskId,
+      projectId,
+      comment,
+    });
+
+    // Báo cho "phía còn lại": ưu tiên assignee (nếu khác người bình luận),
+    // nếu không có hoặc chính là người bình luận thì báo cho người tạo task.
+    const assigneeId = task.assigneeId?.toString();
+    const creatorId = task.createdBy.toString();
+    const notifyUserId =
+      assigneeId && assigneeId !== currentUserId
+        ? assigneeId
+        : creatorId !== currentUserId
+          ? creatorId
+          : null;
+
+    if (notifyUserId) {
+      const commenter = await this.userModel.findById(currentUserId);
+      const commenterName = commenter?.fullName ?? commenter?.email ?? 'Một thành viên';
+      const notif = await this.notificationModel.create({
+        userId:  this._objectIdOrFail(notifyUserId, 'userId'),
+        type:    'task_comment',
+        title:   'Có bình luận mới',
+        body:    `${commenterName} đã bình luận vào công việc "${task.title}"`,
+        refId:   parsedTaskId,
+        refType: 'task',
+        isRead:  false,
+      });
+      this.gateway.emitToUser(notifyUserId, 'notification', {
+        id:    notif._id,
+        type:  notif.type,
+        title: notif.title,
+        body:  notif.body,
+        refId: taskId,
+        refType: 'task',
+      });
+    }
+
+    return comment;
+  }
+
+  async deleteComment(taskId: string, commentId: string, currentUserId: string) {
+    const parsedTaskId = this._objectIdOrFail(taskId, 'taskId');
+    const parsedCommentId = this._objectIdOrFail(commentId, 'commentId');
+
+    const comment = await this.taskCommentModel.findOne({
+      _id: parsedCommentId,
+      taskId: parsedTaskId,
+    });
+    if (!comment) throw new NotFoundException('Không tìm thấy bình luận');
+    if (comment.userId.toString() !== currentUserId) {
+      throw new ForbiddenException('Bạn chỉ được xóa bình luận của chính mình');
+    }
+
+    await comment.deleteOne();
+
+    const task = await this.taskModel.findById(parsedTaskId);
+    const projectId = task?.projectId.toString();
+    if (projectId) {
+      this.gateway.emitToProject(projectId, 'task_comment_deleted', {
+        taskId,
+        projectId,
+        commentId,
+      });
+    }
+
+    return { message: 'Đã xóa bình luận' };
   }
 }

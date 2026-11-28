@@ -45,7 +45,7 @@ class ProfileScreen extends ConsumerWidget {
               children: [
                 ScreenHeader(
                   title: 'Profile',
-                  eyebrow: 'PERSONAL WORKSPACE',
+                  eyebrow: 'KHÔNG GIAN CÁ NHÂN',
                   action: CircleAction(
                     icon: Icons.more_horiz_rounded,
                     onPressed: () {},
@@ -56,7 +56,7 @@ class ProfileScreen extends ConsumerWidget {
                 const SizedBox(height: 28),
                 const SectionTitle(
                   eyebrow: 'PREFERENCES',
-                  title: 'Settings',
+                  title: 'Cài đặt',
                 ),
                 const SizedBox(height: 14),
                 _AccountSettingsTile(profile: profile),
@@ -107,7 +107,7 @@ class _AccountSettingsTile extends StatelessWidget {
             const Expanded(child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Account Settings', style: TextStyle(
+                Text('Cài đặt tài khoản', style: TextStyle(
                     color: AppColors.ink, fontSize: 12,
                     fontWeight: FontWeight.w700)),
                 SizedBox(height: 2),
@@ -137,7 +137,7 @@ class _LogoutButton extends ConsumerWidget {
         onNavigate(AppScreen.login);
       },
       icon: const Icon(Icons.logout_rounded, size: 19),
-      label: const Text('Log Out'),
+      label: const Text('Đăng xuất'),
       style: OutlinedButton.styleFrom(
         foregroundColor: AppColors.accent,
         minimumSize: const Size.fromHeight(50),
@@ -156,12 +156,9 @@ class _PermissionsSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final data  = ref.watch(profileProvider).value ?? profile;
-    final perms = data['permissions'] as Map? ??
-        {'camera': false, 'contacts': false, 'messages': false};
+    final perms = data['permissions'] as Map? ?? {'camera': false};
 
-    final camGranted  = perms['camera']   as bool? ?? false;
-    final contGranted = perms['contacts'] as bool? ?? false;
-    final msgGranted  = perms['messages'] as bool? ?? false;
+    final camGranted  = perms['camera'] as bool? ?? false;
 
     return Container(
       margin: const EdgeInsets.all(12),
@@ -181,7 +178,7 @@ class _PermissionsSheet extends ConsumerWidget {
             ),
           )),
           const SizedBox(height: 16),
-          Text('Account Settings',
+          Text('Cài đặt tài khoản',
               style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
           const Text('Cấp quyền để sử dụng đầy đủ tính năng',
@@ -198,30 +195,6 @@ class _PermissionsSheet extends ConsumerWidget {
                 label: 'Camera',
                 onGranted: () => ref.read(profileProvider.notifier)
                     .updatePermissions(camera: true)),
-          ),
-          const Divider(height: 1, indent: 52),
-          _PermTile(
-            icon: Icons.contacts_outlined,
-            title: 'Danh bạ',
-            subtitle: 'Gọi thành viên khi cần',
-            isGranted: contGranted,
-            onGrant: () => _request(context, ref,
-                permission: Permission.contacts,
-                label: 'Danh bạ',
-                onGranted: () => ref.read(profileProvider.notifier)
-                    .updatePermissions(contacts: true)),
-          ),
-          const Divider(height: 1, indent: 52),
-          _PermTile(
-            icon: Icons.sms_outlined,
-            title: 'Tin nhắn',
-            subtitle: 'Nhắn tin với thành viên',
-            isGranted: msgGranted,
-            onGrant: () => _request(context, ref,
-                permission: Permission.sms,
-                label: 'Tin nhắn',
-                onGranted: () => ref.read(profileProvider.notifier)
-                    .updatePermissions(messages: true)),
           ),
         ],
       ),

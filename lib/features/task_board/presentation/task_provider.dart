@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import '../data/models/task_comment_model.dart';
 import '../data/models/task_model.dart';
 import '../data/task_repository.dart';
 import '../../../core/providers/core_providers.dart';
@@ -269,5 +270,103 @@ class TaskBoardController extends StateNotifier<TaskBoardState> {
     } catch (e) {
       return _msg(e);
     }
+  }
+}
+
+// ── Bình luận task ──
+
+class TaskCommentsState {
+  final List<TaskCommentModel> comments;
+  final bool isLoading;
+  final String? error;
+
+  const TaskCommentsState({
+    this.comments = const [],
+    this.isLoading = false,
+    this.error,
+  });
+
+  TaskCommentsState copyWith({
+    List<TaskCommentModel>? comments,
+    bool? isLoading,
+    String? error,
+  }) =>
+      TaskCommentsState(
+        comments: comments ?? this.comments,
+        isLoading: isLoading ?? this.isLoading,
+        error: error,
+      );
+}
+
+final taskCommentsProvider = StateNotifierProvider.autoDispose
+    .family<TaskCommentsController, TaskCommentsState, String>((ref, taskId) {
+  return TaskCommentsController(
+    taskId,
+    ref.read(taskRepositoryProvider),
+    ref.read(webSocketServiceProvider),
+  );
+});
+
+class TaskCommentsController extends StateNotifier<TaskCommentsState> {
+  final String _taskId;
+  final TaskRepository _repo;
+  final WebSocketService _ws;
+  final List<StreamSubscription<dynamic>> _subs = [];
+
+  TaskCommentsController(this._taskId, this._repo, this._ws)
+      : super(const TaskCommentsState()) {
+    _subs.add(_ws.events('task_comment_added').listen((data) {
+      if (data is! Map || data['taskId']?.toString() != _taskId) return;
+      final raw = data['comment'];
+      if (raw is! Map) return;
+      final comment =
+          TaskCommentModel.fromJson(Map<String, dynamic>.from(raw));
+      state = state.copyWith(comments: [...state.comments, comment]);
+    }));
+    _subs.add(_ws.events('task_comment_deleted').listen((data) {
+      if (data is! Map || data['taskId']?.toString() != _taskId) return;
+      final commentId = data['commentId']?.toString();
+      state = state.copyWith(
+        comments: state.comments.where((c) => c.id != commentId).toList(),
+      );
+    }));
+  }
+
+  static String _msg(Object e) => e.toString().replaceFirst('Exception: ', '');
+
+  Future<void> load() async {
+    state = state.copyWith(isLoading: true, error: null);
+    try {
+      final comments = await _repo.getComments(_taskId);
+      state = state.copyWith(comments: comments, isLoading: false);
+    } catch (e) {
+      state = state.copyWith(isLoading: false, error: _msg(e));
+    }
+  }
+
+  Future<String?> add(String content) async {
+    try {
+      await _repo.addComment(_taskId, content);
+      return null;
+    } catch (e) {
+      return _msg(e);
+    }
+  }
+
+  Future<String?> remove(String commentId) async {
+    try {
+      await _repo.deleteComment(_taskId, commentId);
+      return null;
+    } catch (e) {
+      return _msg(e);
+    }
+  }
+
+  @override
+  void dispose() {
+    for (final s in _subs) {
+      s.cancel();
+    }
+    super.dispose();
   }
 }

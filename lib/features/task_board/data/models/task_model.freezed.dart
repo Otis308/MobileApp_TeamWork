@@ -295,7 +295,7 @@ as String,
 /// @nodoc
 mixin _$TaskModel {
 
-@JsonKey(name: '_id') String get id; String get title; String get description; String get status; String get priority;@JsonKey(name: 'assigneeId', readValue: _readAssignee) TaskAssignee? get assignee; DateTime? get dueDate; bool get dueHasTime; int get order; bool get isOverdue;
+@JsonKey(name: '_id') String get id; String get title; String get description; String get status; String get priority;@JsonKey(name: 'assigneeId', readValue: _readAssignee) TaskAssignee? get assignee;@JsonKey(name: 'createdBy', readValue: _readCreatedById) String? get createdById; DateTime? get dueDate; bool get dueHasTime; int get order; bool get isOverdue; DateTime? get updatedAt;
 /// Create a copy of TaskModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -309,20 +309,20 @@ $TaskModelCopyWith<TaskModel> get copyWith => _$TaskModelCopyWithImpl<TaskModel>
 @override
 bool operator ==(Object other) {
   final _this = this as TaskModel;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskModel&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.priority, _this.priority) || other.priority == _this.priority)&&(identical(other.assignee, _this.assignee) || other.assignee == _this.assignee)&&(identical(other.dueDate, _this.dueDate) || other.dueDate == _this.dueDate)&&(identical(other.dueHasTime, _this.dueHasTime) || other.dueHasTime == _this.dueHasTime)&&(identical(other.order, _this.order) || other.order == _this.order)&&(identical(other.isOverdue, _this.isOverdue) || other.isOverdue == _this.isOverdue));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is TaskModel&&(identical(other.id, _this.id) || other.id == _this.id)&&(identical(other.title, _this.title) || other.title == _this.title)&&(identical(other.description, _this.description) || other.description == _this.description)&&(identical(other.status, _this.status) || other.status == _this.status)&&(identical(other.priority, _this.priority) || other.priority == _this.priority)&&(identical(other.assignee, _this.assignee) || other.assignee == _this.assignee)&&(identical(other.createdById, _this.createdById) || other.createdById == _this.createdById)&&(identical(other.dueDate, _this.dueDate) || other.dueDate == _this.dueDate)&&(identical(other.dueHasTime, _this.dueHasTime) || other.dueHasTime == _this.dueHasTime)&&(identical(other.order, _this.order) || other.order == _this.order)&&(identical(other.isOverdue, _this.isOverdue) || other.isOverdue == _this.isOverdue)&&(identical(other.updatedAt, _this.updatedAt) || other.updatedAt == _this.updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
   final _this = this as TaskModel;
-  return Object.hash(runtimeType,_this.id,_this.title,_this.description,_this.status,_this.priority,_this.assignee,_this.dueDate,_this.dueHasTime,_this.order,_this.isOverdue);
+  return Object.hash(runtimeType,_this.id,_this.title,_this.description,_this.status,_this.priority,_this.assignee,_this.createdById,_this.dueDate,_this.dueHasTime,_this.order,_this.isOverdue,_this.updatedAt);
 }
 
 @override
 String toString() {
   final _this = this as TaskModel;
-  return 'TaskModel(id: ${_this.id}, title: ${_this.title}, description: ${_this.description}, status: ${_this.status}, priority: ${_this.priority}, assignee: ${_this.assignee}, dueDate: ${_this.dueDate}, dueHasTime: ${_this.dueHasTime}, order: ${_this.order}, isOverdue: ${_this.isOverdue})';
+  return 'TaskModel(id: ${_this.id}, title: ${_this.title}, description: ${_this.description}, status: ${_this.status}, priority: ${_this.priority}, assignee: ${_this.assignee}, createdById: ${_this.createdById}, dueDate: ${_this.dueDate}, dueHasTime: ${_this.dueHasTime}, order: ${_this.order}, isOverdue: ${_this.isOverdue}, updatedAt: ${_this.updatedAt})';
 }
 
 
@@ -333,7 +333,7 @@ abstract mixin class $TaskModelCopyWith<$Res>  {
   factory $TaskModelCopyWith(TaskModel value, $Res Function(TaskModel) _then) = _$TaskModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: '_id') String id, String title, String description, String status, String priority,@JsonKey(name: 'assigneeId', readValue: _readAssignee) TaskAssignee? assignee, DateTime? dueDate, bool dueHasTime, int order, bool isOverdue
+@JsonKey(name: '_id') String id, String title, String description, String status, String priority,@JsonKey(name: 'assigneeId', readValue: _readAssignee) TaskAssignee? assignee,@JsonKey(name: 'createdBy', readValue: _readCreatedById) String? createdById, DateTime? dueDate, bool dueHasTime, int order, bool isOverdue, DateTime? updatedAt
 });
 
 
@@ -350,7 +350,7 @@ class _$TaskModelCopyWithImpl<$Res>
 
 /// Create a copy of TaskModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? description = null,Object? status = null,Object? priority = null,Object? assignee = freezed,Object? dueDate = freezed,Object? dueHasTime = null,Object? order = null,Object? isOverdue = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? title = null,Object? description = null,Object? status = null,Object? priority = null,Object? assignee = freezed,Object? createdById = freezed,Object? dueDate = freezed,Object? dueHasTime = null,Object? order = null,Object? isOverdue = null,Object? updatedAt = freezed,}) {
   return _then(TaskModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -358,11 +358,13 @@ as String,description: null == description ? _self.description : description // 
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as String,assignee: freezed == assignee ? _self.assignee : assignee // ignore: cast_nullable_to_non_nullable
-as TaskAssignee?,dueDate: freezed == dueDate ? _self.dueDate : dueDate // ignore: cast_nullable_to_non_nullable
+as TaskAssignee?,createdById: freezed == createdById ? _self.createdById : createdById // ignore: cast_nullable_to_non_nullable
+as String?,dueDate: freezed == dueDate ? _self.dueDate : dueDate // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueHasTime: null == dueHasTime ? _self.dueHasTime : dueHasTime // ignore: cast_nullable_to_non_nullable
 as bool,order: null == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
 as int,isOverdue: null == isOverdue ? _self.isOverdue : isOverdue // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 /// Create a copy of TaskModel
@@ -459,10 +461,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: '_id')  String id,  String title,  String description,  String status,  String priority, @JsonKey(name: 'assigneeId', readValue: _readAssignee)  TaskAssignee? assignee,  DateTime? dueDate,  bool dueHasTime,  int order,  bool isOverdue)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: '_id')  String id,  String title,  String description,  String status,  String priority, @JsonKey(name: 'assigneeId', readValue: _readAssignee)  TaskAssignee? assignee, @JsonKey(name: 'createdBy', readValue: _readCreatedById)  String? createdById,  DateTime? dueDate,  bool dueHasTime,  int order,  bool isOverdue,  DateTime? updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _TaskModel() when $default != null:
-return $default(_that.id,_that.title,_that.description,_that.status,_that.priority,_that.assignee,_that.dueDate,_that.dueHasTime,_that.order,_that.isOverdue);case _:
+return $default(_that.id,_that.title,_that.description,_that.status,_that.priority,_that.assignee,_that.createdById,_that.dueDate,_that.dueHasTime,_that.order,_that.isOverdue,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -480,10 +482,10 @@ return $default(_that.id,_that.title,_that.description,_that.status,_that.priori
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: '_id')  String id,  String title,  String description,  String status,  String priority, @JsonKey(name: 'assigneeId', readValue: _readAssignee)  TaskAssignee? assignee,  DateTime? dueDate,  bool dueHasTime,  int order,  bool isOverdue)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: '_id')  String id,  String title,  String description,  String status,  String priority, @JsonKey(name: 'assigneeId', readValue: _readAssignee)  TaskAssignee? assignee, @JsonKey(name: 'createdBy', readValue: _readCreatedById)  String? createdById,  DateTime? dueDate,  bool dueHasTime,  int order,  bool isOverdue,  DateTime? updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _TaskModel():
-return $default(_that.id,_that.title,_that.description,_that.status,_that.priority,_that.assignee,_that.dueDate,_that.dueHasTime,_that.order,_that.isOverdue);case _:
+return $default(_that.id,_that.title,_that.description,_that.status,_that.priority,_that.assignee,_that.createdById,_that.dueDate,_that.dueHasTime,_that.order,_that.isOverdue,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -500,10 +502,10 @@ return $default(_that.id,_that.title,_that.description,_that.status,_that.priori
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: '_id')  String id,  String title,  String description,  String status,  String priority, @JsonKey(name: 'assigneeId', readValue: _readAssignee)  TaskAssignee? assignee,  DateTime? dueDate,  bool dueHasTime,  int order,  bool isOverdue)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: '_id')  String id,  String title,  String description,  String status,  String priority, @JsonKey(name: 'assigneeId', readValue: _readAssignee)  TaskAssignee? assignee, @JsonKey(name: 'createdBy', readValue: _readCreatedById)  String? createdById,  DateTime? dueDate,  bool dueHasTime,  int order,  bool isOverdue,  DateTime? updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _TaskModel() when $default != null:
-return $default(_that.id,_that.title,_that.description,_that.status,_that.priority,_that.assignee,_that.dueDate,_that.dueHasTime,_that.order,_that.isOverdue);case _:
+return $default(_that.id,_that.title,_that.description,_that.status,_that.priority,_that.assignee,_that.createdById,_that.dueDate,_that.dueHasTime,_that.order,_that.isOverdue,_that.updatedAt);case _:
   return null;
 
 }
@@ -515,7 +517,7 @@ return $default(_that.id,_that.title,_that.description,_that.status,_that.priori
 @JsonSerializable()
 
 class _TaskModel extends TaskModel {
-  const _TaskModel({@JsonKey(name: '_id') required this.id, required this.title, this.description = '', this.status = 'todo', this.priority = 'medium', @JsonKey(name: 'assigneeId', readValue: _readAssignee) this.assignee, this.dueDate, this.dueHasTime = false, this.order = 0, this.isOverdue = false}): super._();
+  const _TaskModel({@JsonKey(name: '_id') required this.id, required this.title, this.description = '', this.status = 'todo', this.priority = 'medium', @JsonKey(name: 'assigneeId', readValue: _readAssignee) this.assignee, @JsonKey(name: 'createdBy', readValue: _readCreatedById) this.createdById, this.dueDate, this.dueHasTime = false, this.order = 0, this.isOverdue = false, this.updatedAt}): super._();
   factory _TaskModel.fromJson(Map<String, dynamic> json) => _$TaskModelFromJson(json);
 
 @override@JsonKey(name: '_id') final  String id;
@@ -524,10 +526,12 @@ class _TaskModel extends TaskModel {
 @override@JsonKey() final  String status;
 @override@JsonKey() final  String priority;
 @override@JsonKey(name: 'assigneeId', readValue: _readAssignee) final  TaskAssignee? assignee;
+@override@JsonKey(name: 'createdBy', readValue: _readCreatedById) final  String? createdById;
 @override final  DateTime? dueDate;
 @override@JsonKey() final  bool dueHasTime;
 @override@JsonKey() final  int order;
 @override@JsonKey() final  bool isOverdue;
+@override final  DateTime? updatedAt;
 
 /// Create a copy of TaskModel
 /// with the given fields replaced by the non-null parameter values.
@@ -542,18 +546,18 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.assignee, assignee) || other.assignee == assignee)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&(identical(other.dueHasTime, dueHasTime) || other.dueHasTime == dueHasTime)&&(identical(other.order, order) || other.order == order)&&(identical(other.isOverdue, isOverdue) || other.isOverdue == isOverdue));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _TaskModel&&(identical(other.id, id) || other.id == id)&&(identical(other.title, title) || other.title == title)&&(identical(other.description, description) || other.description == description)&&(identical(other.status, status) || other.status == status)&&(identical(other.priority, priority) || other.priority == priority)&&(identical(other.assignee, assignee) || other.assignee == assignee)&&(identical(other.createdById, createdById) || other.createdById == createdById)&&(identical(other.dueDate, dueDate) || other.dueDate == dueDate)&&(identical(other.dueHasTime, dueHasTime) || other.dueHasTime == dueHasTime)&&(identical(other.order, order) || other.order == order)&&(identical(other.isOverdue, isOverdue) || other.isOverdue == isOverdue)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode {
-    return Object.hash(runtimeType,id,title,description,status,priority,assignee,dueDate,dueHasTime,order,isOverdue);
+    return Object.hash(runtimeType,id,title,description,status,priority,assignee,createdById,dueDate,dueHasTime,order,isOverdue,updatedAt);
 }
 
 @override
 String toString() {
-    return 'TaskModel(id: $id, title: $title, description: $description, status: $status, priority: $priority, assignee: $assignee, dueDate: $dueDate, dueHasTime: $dueHasTime, order: $order, isOverdue: $isOverdue)';
+    return 'TaskModel(id: $id, title: $title, description: $description, status: $status, priority: $priority, assignee: $assignee, createdById: $createdById, dueDate: $dueDate, dueHasTime: $dueHasTime, order: $order, isOverdue: $isOverdue, updatedAt: $updatedAt)';
 }
 
 
@@ -564,7 +568,7 @@ abstract mixin class _$TaskModelCopyWith<$Res> implements $TaskModelCopyWith<$Re
   factory _$TaskModelCopyWith(_TaskModel value, $Res Function(_TaskModel) _then) = __$TaskModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: '_id') String id, String title, String description, String status, String priority,@JsonKey(name: 'assigneeId', readValue: _readAssignee) TaskAssignee? assignee, DateTime? dueDate, bool dueHasTime, int order, bool isOverdue
+@JsonKey(name: '_id') String id, String title, String description, String status, String priority,@JsonKey(name: 'assigneeId', readValue: _readAssignee) TaskAssignee? assignee,@JsonKey(name: 'createdBy', readValue: _readCreatedById) String? createdById, DateTime? dueDate, bool dueHasTime, int order, bool isOverdue, DateTime? updatedAt
 });
 
 
@@ -581,7 +585,7 @@ class __$TaskModelCopyWithImpl<$Res>
 
 /// Create a copy of TaskModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? description = null,Object? status = null,Object? priority = null,Object? assignee = freezed,Object? dueDate = freezed,Object? dueHasTime = null,Object? order = null,Object? isOverdue = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? title = null,Object? description = null,Object? status = null,Object? priority = null,Object? assignee = freezed,Object? createdById = freezed,Object? dueDate = freezed,Object? dueHasTime = null,Object? order = null,Object? isOverdue = null,Object? updatedAt = freezed,}) {
   return _then(_TaskModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
@@ -589,11 +593,13 @@ as String,description: null == description ? _self.description : description // 
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as String,priority: null == priority ? _self.priority : priority // ignore: cast_nullable_to_non_nullable
 as String,assignee: freezed == assignee ? _self.assignee : assignee // ignore: cast_nullable_to_non_nullable
-as TaskAssignee?,dueDate: freezed == dueDate ? _self.dueDate : dueDate // ignore: cast_nullable_to_non_nullable
+as TaskAssignee?,createdById: freezed == createdById ? _self.createdById : createdById // ignore: cast_nullable_to_non_nullable
+as String?,dueDate: freezed == dueDate ? _self.dueDate : dueDate // ignore: cast_nullable_to_non_nullable
 as DateTime?,dueHasTime: null == dueHasTime ? _self.dueHasTime : dueHasTime // ignore: cast_nullable_to_non_nullable
 as bool,order: null == order ? _self.order : order // ignore: cast_nullable_to_non_nullable
 as int,isOverdue: null == isOverdue ? _self.isOverdue : isOverdue // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,updatedAt: freezed == updatedAt ? _self.updatedAt : updatedAt // ignore: cast_nullable_to_non_nullable
+as DateTime?,
   ));
 }
 

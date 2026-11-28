@@ -281,7 +281,7 @@ class _ProfileCardState extends ConsumerState<ProfileCard> {
     return Column(children: [
       InfoTile(
           icon: Icons.alternate_email_rounded,
-          label: 'Username',
+          label: 'Tên đăng nhập',
           value: v('username').isEmpty ? '' : '@${v('username')}'),
       InfoTile(icon: Icons.person_outline, label: 'Họ và tên', value: v('fullName')),
       InfoTile(icon: Icons.mail_outline, label: 'Email', value: v('email')),
@@ -302,7 +302,7 @@ class _ProfileCardState extends ConsumerState<ProfileCard> {
           controller: _usernameCtrl,
           autocorrect: false,
           decoration: const InputDecoration(
-            labelText: 'Username',
+            labelText: 'Tên đăng nhập',
             helperText: '3-30 ký tự: chữ, số, _ hoặc .',
             prefixIcon: Icon(Icons.alternate_email_rounded),
           ),

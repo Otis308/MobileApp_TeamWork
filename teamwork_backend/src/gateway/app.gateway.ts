@@ -60,7 +60,7 @@ export class AppGateway
       client.data.userId = userId;
       await client.join(`user_${userId}`);
       this.logger.log(`[WS] Client ${client.id} authenticated as ${userId}`);
-    } catch (err) {
+    } catch {
       this.logger.warn(`[WS] Invalid token from ${client.id}, disconnecting`);
       client.disconnect(true);
     }

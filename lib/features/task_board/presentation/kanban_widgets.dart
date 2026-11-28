@@ -100,18 +100,20 @@ class _KanbanColumnViewState extends State<KanbanColumnView> {
                   _buildList(candidates.isNotEmpty),
             ),
           ),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: widget.onAddTask,
-              icon: const Icon(Icons.add_rounded, size: 18),
-              label: const Text('Thêm công việc'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.muted,
-                side: const BorderSide(color: AppColors.line),
+          // Chỉ cho thêm công việc mới từ cột "Cần làm" — các cột khác nhận task qua kéo-thả.
+          if (widget.status == 'todo')
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: widget.onAddTask,
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: const Text('Thêm công việc'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.muted,
+                  side: const BorderSide(color: AppColors.line),
+                ),
               ),
             ),
-          ),
           const SizedBox(height: 90),
         ],
       ),
@@ -302,7 +304,7 @@ class KanbanCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(7),
                   ),
                   child: Text(
-                    task.priority.toUpperCase(),
+                    vietnamesePriorityLabel(task.priority).toUpperCase(),
                     style: const TextStyle(fontSize: 7, fontWeight: FontWeight.w800),
                   ),
                 ),

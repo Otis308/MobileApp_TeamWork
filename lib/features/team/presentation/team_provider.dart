@@ -123,6 +123,29 @@ class TeamController extends StateNotifier<TeamState> {
       _subs.add(_ws.events(event).listen(reload));
     }
 
+    // Ai đó (có thể ở dự án khác) vừa sửa hồ sơ (tên/SĐT/avatar) → cập nhật
+    // ngay trong danh sách đang xem, không cần tải lại cả danh sách.
+    _subs.add(_ws.events('member_profile_updated').listen((data) {
+      if (data is! Map) return;
+      final userId = data['userId']?.toString();
+      if (userId == null) return;
+      final fullName  = data['fullName']?.toString();
+      final email     = data['email']?.toString();
+      final phone     = data['phone']?.toString();
+      final avatarUrl = data['avatarUrl']?.toString();
+      state = state.copyWith(
+        members: state.members.map((m) {
+          if (m.id != userId) return m;
+          return m.copyWith(
+            name:      fullName  ?? m.name,
+            email:     email     ?? m.email,
+            phone:     phone     ?? m.phone,
+            avatarUrl: avatarUrl ?? m.avatarUrl,
+          );
+        }).toList(),
+      );
+    }));
+
     _subs.add(_ws.events('presence').listen((data) {
       if (data is! Map || data['projectId']?.toString() != projectId) return;
       final userId = data['userId']?.toString();

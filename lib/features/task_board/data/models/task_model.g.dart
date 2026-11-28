@@ -33,12 +33,16 @@ _TaskModel _$TaskModelFromJson(Map<String, dynamic> json) => _TaskModel(
       : TaskAssignee.fromJson(
           _readAssignee(json, 'assigneeId') as Map<String, dynamic>,
         ),
+  createdById: _readCreatedById(json, 'createdBy') as String?,
   dueDate: json['dueDate'] == null
       ? null
       : DateTime.parse(json['dueDate'] as String),
   dueHasTime: json['dueHasTime'] as bool? ?? false,
   order: (json['order'] as num?)?.toInt() ?? 0,
   isOverdue: json['isOverdue'] as bool? ?? false,
+  updatedAt: json['updatedAt'] == null
+      ? null
+      : DateTime.parse(json['updatedAt'] as String),
 );
 
 Map<String, dynamic> _$TaskModelToJson(_TaskModel instance) =>
@@ -49,8 +53,10 @@ Map<String, dynamic> _$TaskModelToJson(_TaskModel instance) =>
       'status': instance.status,
       'priority': instance.priority,
       'assigneeId': instance.assignee,
+      'createdBy': instance.createdById,
       'dueDate': instance.dueDate?.toIso8601String(),
       'dueHasTime': instance.dueHasTime,
       'order': instance.order,
       'isOverdue': instance.isOverdue,
+      'updatedAt': instance.updatedAt?.toIso8601String(),
     };

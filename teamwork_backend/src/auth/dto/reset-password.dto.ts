@@ -10,6 +10,6 @@ export class ResetPasswordDto {
 
   @IsString()
   @MinLength(6, { message: 'Mật khẩu tối thiểu 6 ký tự' })
-  @MaxLength(100)
+  @MaxLength(100, { message: 'Mật khẩu tối đa 100 ký tự' })
   newPassword: string;
 }

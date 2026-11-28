@@ -12,6 +12,9 @@ export class Otp extends Document {
   @Prop({ required: true })
   expiresAt: Date;
 
+  @Prop({ default: 0 })
+  failedAttempts: number;
+
   createdAt: Date;
   updatedAt: Date;
 }

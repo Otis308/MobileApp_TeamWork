@@ -4,6 +4,22 @@ import '../../app_routes.dart';
 import '../../core/config/app_config.dart';
 import '../../core/theme/app_theme.dart';
 
+// Nhãn tiếng Việt dùng chung cho trạng thái/độ ưu tiên task — khớp với các bảng
+// map cục bộ ở kanban_board_screen.dart/task_detail_screen.dart để nhất quán toàn app.
+String vietnameseStatusLabel(String status) => switch (status) {
+      'todo' => 'Cần làm',
+      'doing' => 'Đang thực hiện',
+      'done' => 'Hoàn thành',
+      _ => status,
+    };
+
+String vietnamesePriorityLabel(String priority) => switch (priority) {
+      'high' => 'Cao',
+      'medium' => 'Trung bình',
+      'low' => 'Thấp',
+      _ => priority,
+    };
+
 class WorkFlowLogo extends StatelessWidget {
   const WorkFlowLogo({super.key, this.light = false});
 

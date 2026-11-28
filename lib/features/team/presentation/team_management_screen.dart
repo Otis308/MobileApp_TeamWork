@@ -5,11 +5,11 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../app_routes.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/workflow_widgets.dart';
-import '../../project/presentation/project_provider.dart';      // THÊM
+import '../../project/presentation/project_provider.dart';
 import '../data/models/project_member_model.dart';
 import 'team_provider.dart';
 
-class TeamManagementScreen extends ConsumerStatefulWidget {     // ĐỔI
+class TeamManagementScreen extends ConsumerStatefulWidget {
   const TeamManagementScreen({required this.onNavigate, super.key});
   final NavigateTo onNavigate;
 
@@ -17,6 +17,7 @@ class TeamManagementScreen extends ConsumerStatefulWidget {     // ĐỔI
   ConsumerState<TeamManagementScreen> createState() =>
       _TeamManagementScreenState();
 }
+
 class _TeamManagementScreenState
     extends ConsumerState<TeamManagementScreen> {
 
@@ -32,9 +33,11 @@ class _TeamManagementScreenState
   }
 
   // API trả 'role' dạng Admin/Manager/Member → map sang nhãn tiếng Việt.
+  // Mô hình mở chỉ dùng Admin/Member; 'Manager' được giữ để hiển thị đúng cho
+  // dữ liệu cũ (nếu còn), dù không còn gán được qua giao diện.
   String _accessLabel(ProjectMemberModel m) {
     return switch (m.role) {
-      'Admin' => 'Quản trị',
+      'Admin' => 'Quản trị viên',
       'Manager' => 'Quản lý',
       _ => 'Thành viên',
     };
@@ -294,7 +297,7 @@ class _TeamManagementScreenState
         title: Text('Đổi vai trò\n${m.name}'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: ['Quản trị', 'Quản lý', 'Thành viên'].map((role) {
+          children: ['Quản trị viên', 'Thành viên'].map((role) {
             return ListTile(
               title: Text(role),
               trailing: currentRole == role
@@ -306,9 +309,8 @@ class _TeamManagementScreenState
                   : () async {
                       Navigator.pop(context);
                       final apiRole = switch (role) {
-                        'Quản trị' => 'Admin',
-                        'Quản lý'  => 'Manager',
-                        _          => 'Member',
+                        'Quản trị viên' => 'Admin',
+                        _               => 'Member',
                       };
                       final error = await ref
                           .read(teamProvider.notifier)
@@ -580,7 +582,7 @@ class _TeamManagementScreenState
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: ['Tất cả', 'Quản trị', 'Quản lý', 'Thành viên']
+                  children: ['Tất cả', 'Quản trị viên', 'Thành viên']
                       .map((role) {
                     final isSelected = _selectedRole == role;
                     return Padding(
@@ -680,7 +682,7 @@ class _TeamManagementScreenState
                                           horizontal: 8, vertical: 5),
                                       decoration: BoxDecoration(
                                         color: _accessLabel(filtered[i]) ==
-                                                    'Quản trị'
+                                                    'Quản trị viên'
                                                 ? const Color(0xFFFFDDD7)
                                                 : _accessLabel(filtered[i]) ==
                                                         'Quản lý'
@@ -694,7 +696,7 @@ class _TeamManagementScreenState
                                         style: TextStyle(
                                           color:
                                               _accessLabel(filtered[i]) ==
-                                                  'Quản trị'
+                                                  'Quản trị viên'
                                               ? AppColors.accentDark
                                               : _accessLabel(filtered[i]) ==
                                                       'Quản lý'

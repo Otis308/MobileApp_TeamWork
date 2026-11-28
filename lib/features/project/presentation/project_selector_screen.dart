@@ -220,7 +220,7 @@ class _ProjectCard extends StatelessWidget {
   }
 
   String _roleLabel(String role) => switch (role) {
-    'Admin'   => 'Quản trị',
+    'Admin'   => 'Quản trị viên',
     'Manager' => 'Quản lý',
     _         => 'Thành viên',
   };

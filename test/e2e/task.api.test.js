@@ -1,6 +1,10 @@
 const request = require('supertest');
 
-const API_URL = 'http://localhost:3000'; 
+const API_URL = 'http://localhost:3000';
+
+if (!process.env.TEST_USER_EMAIL || !process.env.TEST_USER_PASSWORD) {
+  console.warn('⚠ Thiếu TEST_USER_EMAIL/TEST_USER_PASSWORD trong biến môi trường — test cần tài khoản thật để lấy token.');
+}
 
 describe('Feature: Quản lý Task (API /tasks)', () => {
   let validToken = ''; // Biến để lưu token thật
@@ -10,8 +14,8 @@ describe('Feature: Quản lý Task (API /tasks)', () => {
     const loginResponse = await request(API_URL)
       .post('/auth/login')
       .send({
-        email: 'Dtnguyenvu3025@gmail.com', 
-        password: 'Nguyenvudt3025@'      
+        email: process.env.TEST_USER_EMAIL,
+        password: process.env.TEST_USER_PASSWORD,
       });
 
     // --- CÁC DÒNG DEBUG QUAN TRỌNG ---
